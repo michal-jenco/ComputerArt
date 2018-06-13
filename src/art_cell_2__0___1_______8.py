@@ -1,5 +1,6 @@
 import turtle
 import random
+from math import sin, cos, sqrt
 
 from classes import (ArtCell, Fullness, ProbabilityDistribution, Art_2__0___1_____8___i__m_a_g__e,
                      GridOfArtCells, __default_dimensions__, __default_position__)
@@ -12,9 +13,8 @@ def main():
 
     t = turtle.Turtle()
 
-    t.pensize(3)
     x_offset, y_offset = -900, -400
-    x_spacing, y_spacing = 25, 25
+    x_spacing, y_spacing = 30, 30
 
     rows, cols = __default_dimensions__
     positions_xy = list(range(0, cols)), list(range(0, rows))
@@ -28,13 +28,21 @@ def main():
             cell = ArtCell(t=t, position=position, orientation=random.randint(0, 3))
             art_cells.append(cell)
 
-    prob_dist = ProbabilityDistribution()
-    art_grid = GridOfArtCells(t, art_cells, prob_dist=prob_dist)
+    interesting_functions = {0: lambda x, y: ((sin(sin(x+i*sin(y-i**i))))+1)*2,
+                             1: lambda x, y: min(sqrt(x)*i/(y+1), 3),
+                             2: lambda x, y: max(min(sin(sin(y))*i/(y+1), 3), 0),
+                             3: lambda x, y: int(random.randint(0, 3))}
 
-    image = Art_2__0___1_____8___i__m_a_g__e(turtle=t, grid=art_grid)
+    del x, y
+    for i in range(200):
+        print("Animation: %s" % i)
+        prob_dist = ProbabilityDistribution(value_func=interesting_functions[3])
+        art_grid = GridOfArtCells(t, art_cells, prob_dist=prob_dist)
 
-    image.display()
-    # image.t.clear()
+        image = Art_2__0___1_____8___i__m_a_g__e(turtle=t, grid=art_grid)
+
+        image.t.clear()
+        image.display(offset=((cos(i/15.)/2. + 1)*150, (sin(i/15.)/2. + 1)*150))
 
     turtle.exitonclick()
 

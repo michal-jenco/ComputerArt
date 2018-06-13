@@ -6,7 +6,7 @@ import time
 from math import sin, sqrt, cos
 
 
-__default_dimensions__ = 27, 60
+__default_dimensions__ = 22, 50
 __default_position__ = 0, 0
 
 class SquareDrawer:
@@ -87,16 +87,56 @@ class Art_2__0___1_____8___i__m_a_g__e:
     def __str__(self):
         return "Image: %s" % self.name
 
-    def display(self):
+    def display(self, offset=(0, 0)):
         print("Displaying Image: %s ..." % self.name)
 
         self.t.ht()
-        self.grid.draw()
-        self.t.setpos((9999, 9999))
+        self.grid.draw(offset)
 
 
 class DrawShapes:
     pass
+
+
+class TriangleAngles:
+    RIGHT_ANGLE = [90, 45, 45]
+    ROOF = [45, 90, 45]
+
+
+class TriangleSides:
+    def __init__(self):
+        pass
+
+    def right_angle(self, side):
+        return [side, side, sqrt(side**2 + side**2)]
+
+    def roof(self, side):
+        return [side, sqrt(2 * side ** 2) / 2., sqrt(2 * side ** 2) / 2.]
+
+
+class StartingPositions:
+    def __init__(self):
+        pass
+
+    def right_angle(self, x, y, side):
+        return {0: (x, y),
+                1: (x + side, y),
+                2: (x + side, y + side),
+                3: (x, y + side)}
+
+    def roof(self, x, y, side):
+        return self.right_angle(x, y, side)
+
+
+class Orientations:
+    def __init__(self):
+        pass
+
+    def right_angle(self):
+        return {0: 0, 1: 90, 2: 180, 3: 270}
+
+    def roof(self):
+        return self.right_angle()
 
 
 class DrawTriangle(DrawShapes):
@@ -108,18 +148,15 @@ class DrawTriangle(DrawShapes):
         self.t = t
         self.filled = filled
 
-        self.orientations = {0: 0, 1: 90, 2: 180, 3: 270}
-        self.starting_positions = {0: self.position,
-                                   1: (self.x + side, self.y),
-                                   2: (self.x + side, self.y + side),
-                                   3: (self.x, self.y + side)}
+        self.orientations = Orientations().roof()
+        self.starting_positions = StartingPositions().roof(self.x, self.y, self.side)
         self.orientation = self.orientations[orientation]
 
         self.t.penup()
         self.t.pencolor(color)
 
-        self.angles = 90, 45, 45
-        self.lengths = [1*side, 1*side, sqrt(side**2 + side**2)]
+        self.angles = TriangleAngles.ROOF
+        self.lengths = TriangleSides().roof(self.side)
 
         self.t.setheading(self.orientation)
         self.t.setpos(self.starting_positions[orientation])
@@ -155,13 +192,15 @@ class ArtCell:
         msg = "-- ArtCell _X%s__Y%s_ --" % (self.position[0], self.position[1])
         return msg
 
-    def draw(self, orientation):
+    def draw(self, orientation, offset=(0, 0)):
+        drawing_position = self.position[0] + offset[0], self.position[1] + offset[1]
         self.t.penup()
-        print("ArtCell is being drawn: %s" % self)
+        # print("ArtCell is being drawn: %s" % self)
         self.t.setpos(self.position)
         self.t.pendown()
 
-        DrawTriangle(self.t, position=self.position, side=25, color="white", orientation=orientation,
+        DrawTriangle(self.t,
+                     position=drawing_position, side=30, color="white", orientation=orientation,
                      filled=False if orientation <= 2 else True)
 
 
@@ -180,26 +219,27 @@ class GridOfArtCells:
         x, y = xy
         return self.cells[x*self.cols + y]
 
-    def draw(self):
+    def draw(self, offset=(0, 0)):
         self.t.ht()
 
         for i, cell in enumerate(self.cells):
-            cell.draw(orientation=self.prob_dist.get_value((i % self.cols, i / self.rows)))
+            cell.draw(orientation=self.prob_dist.get_value((i % self.cols, i / self.rows)),
+                      offset=offset)
 
-            if i % 10 == 0:
-                turtle.update()
+            # if i % 500000 == 0:
+        turtle.update()
         # time.sleep(.05)
 
 
 class ProbabilityDistribution:
-    def __init__(self, dimensions=__default_dimensions__):
+    def __init__(self, dimensions=__default_dimensions__, value_func=lambda x, y: 0):
         self.xy = dimensions
         self.x, self.y = dimensions
         self.values = {}
 
         for x in range(self.x):
             for y in range(self.y):
-                value = (sin(x**1/1.1) + sin(y**1/1.2)) + 2
+                value = value_func(x, y)
                 self.values[x, y] = int(value)
 
     def get_value(self, xy):
