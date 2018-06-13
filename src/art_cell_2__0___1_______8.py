@@ -28,21 +28,25 @@ def main():
             cell = ArtCell(t=t, position=position, orientation=random.randint(0, 3))
             art_cells.append(cell)
 
+    # circle y_offset
+    # (cos(i / 15.) / 2. + 1) * 150, (sin(i / 15.) / 2. + 1) * 150)
+
     interesting_functions = {0: lambda x, y: ((sin(sin(x+i*sin(y-i**i))))+1)*2,
                              1: lambda x, y: min(sqrt(x)*i/(y+1), 3),
                              2: lambda x, y: max(min(sin(sin(y))*i/(y+1), 3), 0),
-                             3: lambda x, y: int(random.randint(0, 3))}
+                             3: lambda x, y: int(random.randint(0, 3)),
+                             4: lambda x, y: ((sin(x/(i+.001) + sin(y/(i+.001)/2.))+1)/.5)}
 
     del x, y
-    for i in range(200):
+    for i in range(1000):
         print("Animation: %s" % i)
-        prob_dist = ProbabilityDistribution(value_func=interesting_functions[3])
+        prob_dist = ProbabilityDistribution(value_func=interesting_functions[4])
         art_grid = GridOfArtCells(t, art_cells, prob_dist=prob_dist)
 
         image = Art_2__0___1_____8___i__m_a_g__e(turtle=t, grid=art_grid)
 
         image.t.clear()
-        image.display(offset=((cos(i/15.)/2. + 1)*150, (sin(i/15.)/2. + 1)*150))
+        image.display(offset=(0, 0))
 
     turtle.exitonclick()
 
