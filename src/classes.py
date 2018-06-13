@@ -6,6 +6,9 @@ import time
 from math import sin, sqrt, cos
 
 
+__default_dimensions__ = 27, 60
+__default_position__ = 0, 0
+
 class SquareDrawer:
     def __init__(self):
         self.t = turtle.Turtle()
@@ -21,7 +24,7 @@ class SquareDrawer:
     def save_canvas(self, canvas, filename="abc.ps"):
         canvas.postscript(file=filename, colormode='color')
 
-    def draw(self, pos=(0, 0), n=4, side=20, rotation=0):
+    def draw(self, pos=(0, 0), n=4, side=5, rotation=0):
         self.t.penup()
         self.t.setpos(pos)
         self.t.setheading(rotation)
@@ -62,3 +65,151 @@ class CircleDrawer:
             self.t.forward(side)
             self.t.left(angle)
         turtle.update()
+
+
+class Art_2__0___1_____8___i__m_a_g__e:
+    def __init__(self, grid=None, name="<anonymous> Art_2__0___1_____8___i__m_a_g__e <\\anonymous",
+                 turtle=None):
+        self.t = turtle
+        self.name = name
+        self.grid = grid
+        self.t.pencolor("white")
+        self.default_heading = 0
+
+        self._setup_turtle()
+
+    def _setup_turtle(self):
+        turtle.tracer(0, 0)
+        self.t.ht()
+        self.t.setheading(self.default_heading)
+        self.t.width(1)
+
+    def __str__(self):
+        return "Image: %s" % self.name
+
+    def display(self):
+        print("Displaying Image: %s ..." % self.name)
+
+        self.t.ht()
+        self.grid.draw()
+        self.t.setpos((9999, 9999))
+
+
+class DrawShapes:
+    pass
+
+
+class DrawTriangle(DrawShapes):
+    def __init__(self, t, position, side, color, orientation, filled):
+
+        self.side = side
+        self.position = position
+        self.x, self.y = position
+        self.t = t
+        self.filled = filled
+
+        self.orientations = {0: 0, 1: 90, 2: 180, 3: 270}
+        self.starting_positions = {0: self.position,
+                                   1: (self.x + side, self.y),
+                                   2: (self.x + side, self.y + side),
+                                   3: (self.x, self.y + side)}
+        self.orientation = self.orientations[orientation]
+
+        self.t.penup()
+        self.t.pencolor(color)
+
+        self.angles = 90, 45, 45
+        self.lengths = [1*side, 1*side, sqrt(side**2 + side**2)]
+
+        self.t.setheading(self.orientation)
+        self.t.setpos(self.starting_positions[orientation])
+
+        self.t.pendown()
+
+        if self.filled:
+            self.t.fillcolor("white")
+            self.t.begin_fill()
+
+        for i in range(0, 3):
+            t.forward(self.lengths[i])
+            t.left(180 - self.angles[i])
+
+        if self.filled:
+            self.t.end_fill()
+        self.t.fill()
+
+        # self.t.write(str(orientation))
+
+
+class ArtCell:
+    def __init__(self, t, position=__default_position__, image=None, orientation=None):
+        self.t = t
+        self.position = position
+        self.fullness = Fullness()
+        self.image = image
+        self.orientation = orientation
+
+        self.t.pendown()
+
+    def __repr__(self):
+        msg = "-- ArtCell _X%s__Y%s_ --" % (self.position[0], self.position[1])
+        return msg
+
+    def draw(self, orientation):
+        self.t.penup()
+        print("ArtCell is being drawn: %s" % self)
+        self.t.setpos(self.position)
+        self.t.pendown()
+
+        DrawTriangle(self.t, position=self.position, side=25, color="white", orientation=orientation,
+                     filled=False if orientation <= 2 else True)
+
+
+class GridOfArtCells:
+    def __init__(self, t=None, cells=None, cols=__default_dimensions__[0], rows=__default_dimensions__[1],
+                 prob_dist=None):
+        self.t = t
+        self.cells = cells
+        self.rows, self.cols = rows, cols
+        self.prob_dist = prob_dist
+
+    def __getitem__(self, xy):
+        return self.get_item_by_xy(xy)
+
+    def get_item_by_xy(self, xy):
+        x, y = xy
+        return self.cells[x*self.cols + y]
+
+    def draw(self):
+        self.t.ht()
+
+        for i, cell in enumerate(self.cells):
+            cell.draw(orientation=self.prob_dist.get_value((i % self.cols, i / self.rows)))
+
+            if i % 10 == 0:
+                turtle.update()
+        # time.sleep(.05)
+
+
+class ProbabilityDistribution:
+    def __init__(self, dimensions=__default_dimensions__):
+        self.xy = dimensions
+        self.x, self.y = dimensions
+        self.values = {}
+
+        for x in range(self.x):
+            for y in range(self.y):
+                value = (sin(x**1/1.1) + sin(y**1/1.2)) + 2
+                self.values[x, y] = int(value)
+
+    def get_value(self, xy):
+        x, y = xy
+        return self.values[x, y]
+
+
+class Fullness:
+    def __init__(self):
+        self.fullness = None
+
+    def __float__(self):
+        float(self.fullness)

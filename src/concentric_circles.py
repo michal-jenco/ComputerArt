@@ -17,7 +17,7 @@ def main():
 
     g = 100
     for i in range(g):
-        circle_drawer.draw(angle=.004+i/1000., side=1.3, deformation_function=lambda x: sin(x/50), pos=(-500+i*15, 150))
+        circle_drawer.draw(angle=.009+i/3333., side=1.3, deformation_function=lambda x: sin(x/50), pos=(-500+i*15, 150))
 
     turtle.exitonclick()
 
