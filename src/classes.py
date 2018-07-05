@@ -2,15 +2,38 @@ import turtle
 from math import sqrt
 import random
 import datetime
+from math import sin, cos, radians, degrees
 
 
-__default_dimensions__ = 30 * 5/6, 60 * 5/6
+__default_dimensions__ = 30 * 5/6, 50
 __default_position__ = 0, 0
 __cell_dimensions__ = 30, 30
 
 
 def get_date_string():
     return str(datetime.datetime.now()).split(".")[0].replace(":", "-").replace(" ", "-")
+
+
+def range_to_range(r1, r2, value):
+    """Scale value with range1 to range2"""
+
+    OldMin, OldMax = r1
+    NewMin, NewMax = r2
+
+    OldRange = OldMax - OldMin
+
+    if OldRange == 0:
+        NewValue = NewMin
+
+    else:
+        NewRange = NewMax - NewMin
+        NewValue = (((value - OldMin) * NewRange) / OldRange) + NewMin
+
+    return NewValue
+
+
+class Ranges(object):
+    ZERO_FOUR = 0, 4
 
 
 class SquareDrawer:
@@ -124,7 +147,8 @@ class StartingPositions:
     def __init__(self):
         pass
 
-    def right_angle(self, x, y, side):
+    @staticmethod
+    def right_angle(x, y, side):
         return {0: (x, y),
                 1: (x + side, y),
                 2: (x + side, y + side),
@@ -133,11 +157,27 @@ class StartingPositions:
     def roof(self, x, y, side):
         return self.right_angle(x, y, side)
 
-    def half_circle(self, x, y, radius):
+    @staticmethod
+    def half_circle(x, y, radius):
         return {0: (x + radius, y),
                 1: (x + 2 * radius, y + radius),
                 2: (x + radius, y + 2 * radius),
                 3: (x, y + radius)}
+
+    @staticmethod
+    def dot(x, y, cell_side):
+        return x + cell_side / 2., y + cell_side / 2.
+
+    def stick(self, x, y, cell_side, angle):
+        center_x, center_y = self.dot(x, y, cell_side)
+        return get_position_on_circle_based_on_angle(radius=cell_side / 2.,
+                                                     angle=radians(angle), center_x=center_x, center_y=center_y)
+
+
+def get_position_on_circle_based_on_angle(radius, angle, center_x, center_y):
+    x = cos(angle) * radius + center_x
+    y = sin(angle) * radius + center_y
+    return x, y
 
 
 class Orientations:
@@ -153,6 +193,9 @@ class Orientations:
     def half_circle(self):
         return self.right_angle()
 
+    def stick(self, prob_dist_value):
+        return range_to_range(Ranges.ZERO_FOUR, (0, 360), prob_dist_value)
+
 
 class DrawTriangle(DrawShapes):
     def __init__(self, draw, t, position, side, color, orientation, filled):
@@ -166,7 +209,7 @@ class DrawTriangle(DrawShapes):
 
         self.orientations = Orientations().roof()
         self.starting_positions = StartingPositions().roof(self.x, self.y, self.side)
-        self.orientation = self.orientations[orientation]
+        self.orientation = self.orientations[int(orientation)]
 
         self.t.penup()
         self.t.pencolor(color)
@@ -175,7 +218,7 @@ class DrawTriangle(DrawShapes):
         self.lengths = TriangleSides().roof(self.side)
 
         self.t.setheading(self.orientation)
-        self.t.setpos(self.starting_positions[orientation])
+        self.t.setpos(self.starting_positions[int(orientation)])
 
         self.t.pendown()
 
@@ -199,22 +242,24 @@ class DrawHalfCircles(DrawShapes):
         if not draw:
             return
 
+        color = "white" if probability_distribution_value < 2 else "black"
+
         self.radius = radius
         self.position = position
         self.x, self.y = position
         self.t = t
         self.filled = filled
-        self.fill_color = fill_color
+        self.fill_color = color
         self.color = color
 
         self.t.penup()
 
         self.orientations = Orientations().half_circle()
         self.starting_positions = StartingPositions().half_circle(self.x, self.y, self.radius)
-        self.orientation = self.orientations[probability_distribution_value]
+        self.orientation = self.orientations[int(probability_distribution_value)]
 
         self.t.setheading(self.orientation)
-        self.t.setpos(self.starting_positions[probability_distribution_value])
+        self.t.setpos(self.starting_positions[int(probability_distribution_value)])
         self.t.pendown()
         self.t.pencolor(self.color)
 
@@ -225,13 +270,48 @@ class DrawHalfCircles(DrawShapes):
         cut = {0: 0,
                1: 180,
                2: 180,
-               3: 360}[probability_distribution_value]
+               3: 360}[int(probability_distribution_value)]
 
         t.circle(self.radius, cut)
 
         if self.filled:
             self.t.end_fill()
             self.t.fill()
+
+
+class DrawScaledDots(DrawShapes):
+    def __init__(self, draw, t, position, cell_size, probability_distribution_value, color):
+        super(DrawScaledDots, self).__init__(draw=draw)
+
+        if not draw:
+            return
+
+        x, y = position
+        t.penup()
+        t.setpos(StartingPositions().dot(x, y, cell_size))
+        t.pendown()
+
+        radius = range_to_range(Ranges.ZERO_FOUR, (0, cell_size), probability_distribution_value)
+        t.dot(radius, color)
+
+
+class DrawStick(DrawShapes):
+    def __init__(self, draw, t, position, cell_size, probability_distribution_value, color, width):
+        super(DrawStick, self).__init__(draw=draw)
+
+        if not draw:
+            return
+
+        angle = Orientations().stick(prob_dist_value=probability_distribution_value)
+        x, y = position
+
+        t.penup()
+        t.setpos(StartingPositions().stick(x, y, cell_size, angle=angle))
+        t.setheading(angle-180)
+        t.pencolor(color)
+        t.width(width)
+        t.pendown()
+        t.forward(range_to_range(Ranges.ZERO_FOUR, (cell_size, cell_size*3), probability_distribution_value))
 
 
 class DrawCellBoundary(DrawShapes):
@@ -254,6 +334,42 @@ class DrawCellBoundary(DrawShapes):
             t.left(90)
 
 
+class DrawCellGrid(DrawShapes):
+    def __init__(self, draw, t, dimensions, start_pos, cell_side, color, width):
+        cols, rows = dimensions
+
+        t.setheading(0)
+        t.setpos(start_pos)
+        t.width(width)
+        t.pencolor(color)
+
+        for i in range(rows):
+            pass
+
+
+class DrawCellBackground(DrawShapes):
+    def __init__(self, draw, t, position, probability_distribution_value, cell_side):
+        if not draw:
+            return
+
+        color = "black" if probability_distribution_value < 2 else "white"
+
+        t.fillcolor(color)
+        t.pencolor(color)
+        t.setheading(0)
+        t.setpos(position)
+        t.pendown()
+        t.begin_fill()
+
+        for i in range(4):
+            t.forward(cell_side)
+            t.left(90)
+
+        t.end_fill()
+        t.fill()
+        t.penup()
+
+
 class ArtCell:
     def __init__(self, t, dimensions, position=__default_position__, image=None, orientation=None):
         self.t = t
@@ -264,8 +380,6 @@ class ArtCell:
         self.image = image
         self.orientation = orientation
 
-        self.t.pendown()
-
     def __repr__(self):
         msg = "-- ArtCell _X%s__Y%s_ --" % (self.position[0], self.position[1])
         return msg
@@ -274,17 +388,24 @@ class ArtCell:
         drawing_position = self.position[0] + offset[0], self.position[1] + offset[1]
         self.t.penup()
         self.t.setpos(self.position)
-        self.t.pendown()
 
-        # DrawTriangle(self.t,
-        #              position=drawing_position, side=30, color="white", orientation=orientation,
-        #              filled=False if orientation <= 2 else True)
+        # DrawCellBackground(draw=True, t=self.t, cell_side=self.dimensions[0], position=drawing_position,
+        #                    probability_distribution_value=probability_distribution_value)
 
-        DrawCellBoundary(draw=False, t=self.t, side=self.side, position=drawing_position, color="white")
+        # DrawTriangle(t=self.t, draw=True,
+        #              position=drawing_position, side=30, color="white", orientation=probability_distribution_value,
+        #              filled=False if probability_distribution_value <= 2 else True, )
 
-        DrawHalfCircles(draw=True, t=self.t, position=drawing_position, radius=self.side / 2, color="white",
-                        fill_color="white", filled=probability_distribution_value < 9,
-                        probability_distribution_value=probability_distribution_value)
+        # DrawCellBoundary(draw=True, t=self.t, side=self.side, position=drawing_position, color="white")
+        # DrawHalfCircles(draw=True, t=self.t, position=drawing_position, radius=self.side / 2, color="white",
+        #                 fill_color="white", filled=probability_distribution_value < 9,
+        #                 probability_distribution_value=probability_distribution_value)
+        #
+        # DrawScaledDots(draw=True, t=self.t, position=drawing_position, cell_size=self.dimensions[0], color="white",
+        #                probability_distribution_value=probability_distribution_value)
+
+        DrawStick(draw=True, t=self.t, position=drawing_position, cell_size=self.dimensions[0], color="white",
+                  probability_distribution_value=probability_distribution_value, width=1)
 
 
 class GridOfArtCells:
@@ -308,7 +429,6 @@ class GridOfArtCells:
         for i, cell in enumerate(self.cells):
             cell.draw(probability_distribution_value=self.prob_dist.get_value((i % self.cols, i / self.rows)),
                       offset=offset)
-
         turtle.update()
 
 
@@ -321,7 +441,7 @@ class ProbabilityDistribution:
         for x in range(self.x):
             for y in range(self.y):
                 value = value_func(x, y)
-                self.values[x, y] = int(value)
+                self.values[x, y] = float(value)
 
     def get_value(self, xy):
         x, y = xy

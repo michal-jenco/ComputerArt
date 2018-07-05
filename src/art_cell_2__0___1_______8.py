@@ -27,9 +27,7 @@ def main():
             position = x*x_spacing + x_offset, y*y_spacing + y_offset
             cell = ArtCell(t=t, dimensions=__cell_dimensions__, position=position, orientation=random.randint(0, 3))
             art_cells.append(cell)
-
-    # circle y_offset
-    # (cos(i / 15.) / 2. + 1) * 150, (sin(i / 15.) / 2. + 1) * 150)
+    del x, y
 
     interesting_functions = {0: lambda x, y: ((sin(sin(x+i*sin(y-i**i))))+1)*2,
                              1: lambda x, y: min(sqrt(x)*i/(y+1), 3),
@@ -40,14 +38,17 @@ def main():
                              6: lambda x, y: (sin(x / (i / 10. + 1)) + 1) + (cos(y / (i / 30. + 1)) + 1),
                              7: lambda x, y: (sin(x / (i / 10. + 1)) + 1) + (cos(y / (i / 3. + 1)) + 1),
                              8: lambda x, y: abs(sin(x*y*i) * 4),
-                             9: lambda x, y: abs(sin(x*y*i) * 4),
+                             9: lambda x, y: abs(sin(x*y*i/100.) * 4),
                              10: lambda x, y: abs(sin(sqrt(x*y*i)) * 4),
-                             11: lambda x, y: abs((sin((x / (i/50. + 1)) + sin(x / 2. + sin(y / 3.))))) * 4}
+                             11: lambda x, y: abs((sin((x / (i/150. + 1)) + sin(x / 2. + sin(y / 3.))))) * 4,
+                             12: lambda x, y: (x/10. + y/20. + i/30.) % 4,
+                             13: lambda x, y: sin(x+y+i/15.) + cos(x+y-i/17.),
+                             14: lambda x, y: sqrt(abs(sin(cos(y+i/10.)))*8) * sqrt(abs(sin(cos(x-i/30.)))*6) % 4,
+                             15: lambda x, y: abs(i/10. + sin(x) + sin(x/3.) + sin(x/5.) + cos(y/2.) + cos(y/7.)) % 4}
 
-    del x, y
     for i in range(1000):
         print("Animation: %s" % i)
-        prob_dist = ProbabilityDistribution(value_func=interesting_functions[11])
+        prob_dist = ProbabilityDistribution(value_func=interesting_functions[15])
         art_grid = GridOfArtCells(t, art_cells, prob_dist=prob_dist)
 
         image = Art_2__0___1_____8___i__m_a_g__e(turtle=t, grid=art_grid)
