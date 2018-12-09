@@ -6,9 +6,9 @@ from math import sin, cos, radians, degrees
 
 
 # version 1.0
-__default_dimensions__ = int(25), int(50)
+__default_dimensions__ = int(25 * 3), int(50 * 3)
 __default_position__ = 0, 0
-__cell_dimensions__ = 30, 30
+__cell_dimensions__ = 10, 10
 #
 # # version 2.0
 # __default_dimensions__ = 20, 30
