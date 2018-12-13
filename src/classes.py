@@ -6,7 +6,7 @@ from math import sin, cos, radians, degrees
 
 
 # version 1.0
-__default_dimensions__ = int(25 * 3), int(50 * 3)
+__default_dimensions__ = int(25 * 3) // 3, int(50 * 3) // 3
 __default_position__ = 0, 0
 __cell_dimensions__ = 10, 10
 #
