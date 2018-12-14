@@ -1,10 +1,9 @@
 import turtle
 import random
-from math import sin, cos, sqrt, factorial, gcd, exp, log
-from pyscreenshot import grab
+from math import sin, cos, sqrt, gcd, log
 
-from src.classes import (ArtCell, ProbabilityDistribution, Art_2__0___1_____8___i__m_a_g__e, GridOfArtCells,
-                         __default_dimensions__, __cell_dimensions__, get_date_string, WhatToDrawSettings)
+from classes import (ArtCell, ProbabilityDistribution, Art_2__0___1_____8___i__m_a_g__e, GridOfArtCells,
+                     __default_dimensions__, __cell_dimensions__, WhatToDrawSettings)
 
 
 def main():

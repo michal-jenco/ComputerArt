@@ -1,4 +1,4 @@
-from src.classes import CircleDrawer
+from classes import CircleDrawer
 import turtle
 from math import sin
 
