@@ -8,7 +8,7 @@ from math import sin, cos, radians, degrees
 # version 1.0
 __default_dimensions__ = int(25 * 3) // 3, int(50 * 3) // 3
 __default_position__ = 0, 0
-__cell_dimensions__ = 10, 10
+__cell_dimensions__ = 30, 30
 #
 # # version 2.0
 # __default_dimensions__ = 20, 30
@@ -23,19 +23,19 @@ def get_date_string():
 def range_to_range(r1, r2, value):
     """Scale value with range1 to range2"""
 
-    OldMin, OldMax = r1
-    NewMin, NewMax = r2
+    old_min, old_max = r1
+    new_min, new_max = r2
 
-    OldRange = OldMax - OldMin
+    old_range = old_max - old_min
 
-    if OldRange == 0:
-        NewValue = NewMin
+    if old_range == 0:
+        new_value = new_min
 
     else:
-        NewRange = NewMax - NewMin
-        NewValue = (((value - OldMin) * NewRange) / OldRange) + NewMin
+        new_range = new_max - new_min
+        new_value = (((value - old_min) * new_range) / old_range) + new_min
 
-    return NewValue
+    return new_value
 
 
 class Ranges(object):
@@ -50,11 +50,13 @@ class SquareDrawer:
         self.t.tracer(0, 0)
         self.t.width(1)
 
-    def get_canvas(self):
+    @staticmethod
+    def get_canvas():
         cv = turtle.getcanvas()
         return cv
 
-    def save_canvas(self, canvas, filename="abc.ps"):
+    @staticmethod
+    def save_canvas(canvas, filename="abc.ps"):
         canvas.postscript(file=filename, colormode='color')
 
     def draw(self, pos=(0, 0), n=4, side=5, rotation=0):
@@ -75,7 +77,8 @@ class SequenceGenerator:
     def __init__(self):
         pass
 
-    def get_grid(self, offset=(0, 0), rows=20, cols=20, step_v=5, step_h=5):
+    @staticmethod
+    def get_grid(offset=(0, 0), rows=20, cols=20, step_v=5, step_h=5):
         for row in range(rows):
             for col in range(cols):
                 yield offset[0] + col*step_v, offset[1] - row*step_h
@@ -112,20 +115,16 @@ class TriangleAngles:
 
 
 class TriangleSides:
-    def __init__(self):
-        pass
+    @staticmethod
+    def right_angle(side):
+        return [side, side, sqrt(side ** 2 + side ** 2)]
 
-    def right_angle(self, side):
-        return [side, side, sqrt(side**2 + side**2)]
-
-    def roof(self, side):
+    @staticmethod
+    def roof(side):
         return [side, sqrt(2 * side ** 2) / 2., sqrt(2 * side ** 2) / 2.]
 
 
 class StartingPositions:
-    def __init__(self):
-        pass
-
     @staticmethod
     def right_angle(x, y, side):
         return {0: (x, y),
@@ -166,7 +165,8 @@ class Orientations:
     def __init__(self):
         pass
 
-    def right_angle(self):
+    @staticmethod
+    def right_angle():
         return {0: 0, 1: 90, 2: 180, 3: 270}
 
     def roof(self):
@@ -175,7 +175,8 @@ class Orientations:
     def half_circle(self):
         return self.right_angle()
 
-    def stick(self, prob_dist_value):
+    @staticmethod
+    def stick(prob_dist_value):
         return range_to_range(Ranges.ZERO_FOUR, (0, 360), prob_dist_value)
 
     def ngon(self, prob_dist_value):

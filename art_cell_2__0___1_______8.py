@@ -55,14 +55,14 @@ def main():
 
     for i in range(1, 1000):
         print("Animation: %s" % i)
-        prob_dist = ProbabilityDistribution(value_func=interesting_functions[21])
+        prob_dist = ProbabilityDistribution(value_func=interesting_functions[6])
         art_grid = GridOfArtCells(t, art_cells, prob_dist=prob_dist)
         what_to_draw = WhatToDrawSettings(cell_background=0,
                                           triangles=0,
                                           cell_boundary=0,
                                           half_circles=0,
-                                          scaled_dots=1,
-                                          sticks=0,
+                                          scaled_dots=0,
+                                          sticks=1,
                                           ngon=0,
                                           experiment=0)
 
