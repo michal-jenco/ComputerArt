@@ -429,7 +429,7 @@ class Art_2__0___1_____8___i__m_a_g__e:
         return "Image: %s" % self.name
 
     def display(self, what_to_draw, offset=(0, 0)):
-        print("Displaying Image: %s ..." % self.name)
+        # print("Displaying Image: %s ..." % self.name)
 
         self.t.ht()
         self.grid.draw(offset=offset, what_to_draw=what_to_draw)

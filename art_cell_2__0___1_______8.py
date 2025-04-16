@@ -1,4 +1,4 @@
-### 2025 update 2
+### 2025 update
 
 import turtle
 import random
@@ -10,16 +10,23 @@ from classes import (
     WhatToDrawSettings,
 )
 
+__cell_dimensions__ = 10, 10
 
-def save_layout(filename: str) -> None:
+
+def save_layout(filename: str, w: int) -> None:
     base_path = f"C:/Users/misko/Desktop/computer-art-2025"
 
-    im = ImageGrab.grab(bbox=(1050, 500, 1550, 1000))
+    x = 1035
+    y = x + w
+
+    # im = ImageGrab.grab(bbox=(1040, 500, 1540, 1000))
+    im = ImageGrab.grab(bbox=(x, w, y, w*2))
     im.save(f"{base_path}/output/{filename}.png", format="PNG")
 
 
 def main():
-    turtle.setup(width=600, height=600)
+    w, h = 500, 500
+    turtle.setup(width=w, height=h)
     turtle.bgcolor("black")
     turtle.pencolor("white")
     turtle.ht()
@@ -64,17 +71,18 @@ def main():
         20: lambda x, y: (sin(x * i / 15.) + sin(y * i / 5.)) % 4,
         21: lambda x, y: (sin(x * i / 105.) + sin(y * i / 50.)) % 4,
         22: lambda x, y: (sin(x * i / 305.) + sin(y * i / 250.)) % 4,
+        23: lambda x, y: ((sin(sin(x + (i / 15) * sin(y - (i / 18) ** (.0087 * i))))) + 1) * 2,
     }
 
-    for i in range(2000, 5000):
+    for i in range(0, 2000):
         print("Animation: %s" % i)
-        prob_dist = ProbabilityDistribution(value_func=interesting_functions[22])
+        prob_dist = ProbabilityDistribution(value_func=interesting_functions[9])
         art_grid = GridOfArtCells(t, art_cells, prob_dist=prob_dist)
         what_to_draw = WhatToDrawSettings(cell_background=0,
                                           triangles=0,
                                           cell_boundary=0,
-                                          half_circles=0,
-                                          scaled_dots=1,
+                                          half_circles=1,
+                                          scaled_dots=0,
                                           sticks=0,
                                           ngon=0,
                                           experiment=0)
@@ -84,10 +92,7 @@ def main():
         image.t.clear()
         image.display(offset=(0, 0), what_to_draw=what_to_draw)
 
-        save_layout(filename=str(i))
-
-        # im = grab(bbox=[30, 150, 1620, 1040])
-        # im.save("../images3/%s.png" % (get_date_string() + "_" + str(i)))
+        save_layout(filename=f"{str(i)}-halfcirc", w=w)
 
     turtle.exitonclick()
 
