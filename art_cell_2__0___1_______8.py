@@ -1,23 +1,35 @@
+### 2025 update
+
 import turtle
 import random
 from math import sin, cos, sqrt, gcd, log
+from PIL import ImageGrab
 
-from classes import (ArtCell, ProbabilityDistribution, Art_2__0___1_____8___i__m_a_g__e, GridOfArtCells,
-                     __default_dimensions__, __cell_dimensions__, WhatToDrawSettings)
+from classes import (
+    ArtCell, ProbabilityDistribution, Art_2__0___1_____8___i__m_a_g__e, GridOfArtCells, __cell_dimensions__,
+    WhatToDrawSettings,
+)
+
+
+def save_layout(filename: str) -> None:
+    base_path = f"C:/Users/misko/Desktop/computer-art-2025"
+
+    im = ImageGrab.grab(bbox=(1050, 500, 1550, 1000))
+    im.save(f"{base_path}/output/{filename}.png", format="PNG")
 
 
 def main():
-    turtle.setup(width=1900, height=950)
+    turtle.setup(width=600, height=600)
     turtle.bgcolor("black")
     turtle.pencolor("white")
     turtle.ht()
 
     t = turtle.Turtle()
 
-    x_offset, y_offset = -900, -400
+    x_offset, y_offset = -250, -250
     x_spacing, y_spacing = __cell_dimensions__
 
-    rows, cols = __default_dimensions__
+    rows, cols = 50, 50
     positions_xy = list(range(int(cols))), list(range(int(rows)))
     art_cells = []
 
@@ -51,11 +63,12 @@ def main():
         19: lambda x, y: (sin(x + i / 4.) + sin(y + i / (sin(i / 6.) + .001)) + 2),
         20: lambda x, y: (sin(x * i / 15.) + sin(y * i / 5.)) % 4,
         21: lambda x, y: (sin(x * i / 105.) + sin(y * i / 50.)) % 4,
+        22: lambda x, y: (sin(x * i / 305.) + sin(y * i / 250.)) % 4,
     }
 
-    for i in range(1, 1000):
+    for i in range(2000, 5000):
         print("Animation: %s" % i)
-        prob_dist = ProbabilityDistribution(value_func=interesting_functions[21])
+        prob_dist = ProbabilityDistribution(value_func=interesting_functions[22])
         art_grid = GridOfArtCells(t, art_cells, prob_dist=prob_dist)
         what_to_draw = WhatToDrawSettings(cell_background=0,
                                           triangles=0,
@@ -70,6 +83,8 @@ def main():
 
         image.t.clear()
         image.display(offset=(0, 0), what_to_draw=what_to_draw)
+
+        save_layout(filename=str(i))
 
         # im = grab(bbox=[30, 150, 1620, 1040])
         # im.save("../images3/%s.png" % (get_date_string() + "_" + str(i)))
